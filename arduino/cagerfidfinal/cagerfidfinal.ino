@@ -13,6 +13,14 @@ void printDebug(String message) {
   }
 }
 
+/**
+ * Script to restart arduino
+// Restarts program from beginning but does not reset the peripherals and registers
+void software_Reset() {
+    asm volatile("jmp 0");
+} 
+**/
+
 const int cageID = 1;
 
   // initialize pin numbers.*****************************************************
@@ -34,6 +42,7 @@ const int cageID = 1;
   const int delayAP = 100;
   const int delayRW = 100;
   const int delayAP2lick = 1500;
+  const int delayRFIDreset = 150;
   const long IRmouseREC = 7.0;
   const long lickduration = 2000;
   const long delayLICK = 1900;
@@ -57,10 +66,12 @@ const int cageID = 1;
   unsigned long licktime = 0;
   //unsigned long duration = 0;
   unsigned long startmillis = 0;
-  unsigned long resetRFID = 0;
+  unsigned long resetRFID = 150;
   unsigned long IRcheck = 0;
   unsigned long rewardtime = 0;
   unsigned long faildowntime = 0;
+  unsigned long reactiontime = 0;
+  unsigned long airpuffreleasetime = 0;
   boolean touchStates[12];
   boolean airpuffstate = false;
   boolean lickstate = false;
@@ -155,33 +166,34 @@ void setup() {
 //Loop********************************************************************
 void loop() {
 currMillis = millis();
+printDebug(String(currMillis));
 readTouchInputs();
   delay(1);
 
   /////////////look for mouse at RFID/////////
-  
-  char tagString[13];
-  int index = 0;
-  boolean reading = false;
+  if(currMillis > resetRFID){
+    char tagString[13];
+    int index = 0;
+    boolean reading = false;
 
-  while(Serial.available()){
+    while(Serial.available()){
 
-    int readByte = Serial.read(); //read next available byte
+      int readByte = Serial.read(); //read next available byte
 
-    if(readByte == 2) reading = true; //begining of tag
-    if(readByte == 3) reading = false; //end of tag
+      if(readByte == 2) reading = true; //begining of tag
+      if(readByte == 3) reading = false; //end of tag
 
-    if(reading && readByte != 2 && readByte != 10 && readByte != 13){
-      //store the tag
-      tagString[index] = readByte;
-      index ++;
+      if(reading && readByte != 2 && readByte != 10 && readByte != 13){
+        //store the tag
+        tagString[index] = readByte;
+        index ++;
+      }
     }
+
+    checkTag(tagString); //Check if it is a match
+    clearTag(tagString); //Clear the char of all value
+    resetReader(); //reset the RFID reader
   }
-
-  checkTag(tagString); //Check if it is a match
-  clearTag(tagString); //Clear the char of all value
-  resetReader(); //reset the RFID reader
-
   if(IRon == false && IRVon == true){
     digitalWrite(IRVpin, LOW);
     IRVon = false;
@@ -249,14 +261,14 @@ readTouchInputs();
     }else{
       if(previoustrial >2){
         wait4AP = delayIR2AP + randomwait4AP + delayERROR;
-        startwaiting = currMillis + delayERROR;
-        Serial.println(currMillis);
-        Serial.println(startwaiting);
+        startwaiting = currMillis - delayERROR;
+        printDebug(String(currMillis));
+        printDebug(String(startwaiting));
       }else if(previoustrial <2){
         wait4AP = delayIR2AP + randomwait4AP + delayGOOD;
-        startwaiting = currMillis + delayGOOD;
-        Serial.println(currMillis);
-        Serial.println(startwaiting);
+        startwaiting = currMillis - delayGOOD;
+        printDebug(String(currMillis));
+        printDebug(String(startwaiting));
       }
       
     }
@@ -264,6 +276,7 @@ readTouchInputs();
     inprocess = true;
     retrial = false;
     lickedthistrial = 0;
+    reactiontime =0;
     whensnext(AIRPUFF_TIMEOUT);
     }
 
@@ -292,6 +305,7 @@ readTouchInputs();
      }else{solenoid(randTrial);
           }
      airpuffstate = true;
+     airpuffreleasetime = currMillis;
      whensnext(TIME_TO_LICK);
   }
 
@@ -401,8 +415,8 @@ void resetReader(){
 ///////////////////////////////////
   digitalWrite(RFIDResetPin, LOW);
   digitalWrite(RFIDResetPin, HIGH);
-  delay(150);
-  //whensnext(RFID_RESET_TIMEOUT);
+  //delay(150);
+  whensnext(RFID_RESET_TIMEOUT);
 }
 
 //send Information****************************************************************************************************************
@@ -417,6 +431,11 @@ void closeTrial(int outcome){
       duration = finish - start;
       iteration = sessiontrials;
       timewaited4AP = currMillis - startwaiting;
+      if(outcome == 2){
+        reactiontime =0;        
+      }else{
+        reactiontime = currMillis - airpuffreleasetime;
+      }
       SendCollectedInformation();
 }
 void SendCollectedInformation(){
@@ -458,7 +477,7 @@ void whensnext(char reason){
     nextround = currMillis + delayGOOD;
     break;
   case RFID_RESET_TIMEOUT:
-    resetRFID = currMillis + 350;
+    resetRFID = currMillis + delayRFIDreset;
     break;
   case INFRARED_TIMEOUT:
     IRcheck = currMillis + 300;

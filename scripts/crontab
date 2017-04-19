@@ -1,0 +1,2 @@
+# type "crontab -e" and paste this line at the end (terminal) 
+* */24 * * * /home/cage/cagedocu/scripts/backup_database.sh
