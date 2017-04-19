@@ -1,5 +1,7 @@
 CREATE DATABASE IF NOT EXISTS cage;
 
+USE cage;
+
 CREATE TABLE IF NOT EXISTS trial_data (
     id INT(10) AUTO_INCREMENT PRIMARY KEY,
     cage INT(10),  
@@ -13,4 +15,12 @@ CREATE TABLE IF NOT EXISTS trial_data (
     wait4AP INT(10),
     waited INT(10),
     iteration INT(10)
+);
+
+CREATE TABLE IF NOT EXISTS arduino_events (
+    id INT(10) AUTO_INCREMENT PRIMARY KEY,
+    serialNumber VARCHAR(20),
+    serialPort VARCHAR(20),
+    timestamp BIGINT,
+    event VARCHAR(50)
 );

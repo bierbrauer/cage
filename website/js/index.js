@@ -67,6 +67,38 @@ function onDataLoaded(response, status) {
     });
 }
 
+function onArduinoEventsLoaded(response, status) {
+    console.info('Data loaded: ' + status);
+    
+    var parsedData = JSON.parse(response);
+    var tableData = [];
+
+    parsedData.forEach(function(element, index) {
+	tableData[index] = [];
+
+        Object.keys(element).forEach(function(key, eIndex) {
+            var value = element[key];
+
+	    if (key === 'timestamp') {
+                value = parseDate(value);
+            }
+
+            tableData[index][eIndex] = value;
+        });
+    });
+
+    $('#arduino_events').DataTable({
+        data: tableData,
+        columns: [
+            { title: "ID" },
+            { title: "SerialNumber" },
+            { title: "SerialPort" },
+            { title: "Timestamp" },
+            { title: "Event" }
+        ]
+    });
+}
+
 function onError() {
     console.error('Error fetching data!');
 }
@@ -76,6 +108,11 @@ function start() {
 
     $.ajax('/cage/php/sql.php', {
         success: onDataLoaded,
+        error: onError
+    });
+
+    $.ajax('/cage/php/arduino_events.php', {
+        success: onArduinoEventsLoaded,
         error: onError
     });
 }
