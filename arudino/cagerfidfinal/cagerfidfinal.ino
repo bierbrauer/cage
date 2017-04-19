@@ -421,7 +421,7 @@ void closeTrial(int outcome){
 }
 void SendCollectedInformation(){
   //cage program mouse trial start finish duration result wait4AP time_waited iteration
-  Serial.println(String(cage)+" "+String(program)+" "+String(mouse)+" "+String(trial)+" "+String(start)+" "+String(finish)+" "+String(duration)+" "+String(result)+" "+String(wait4AP)+" "+String(timewaited4AP)+" "+String(iteration));
+  Serial.println(String(cage)+" "+String(program)+" "+String(mouse)+" "+String(trial)+" "+String(duration)+" "+String(result)+" "+String(wait4AP)+" "+String(timewaited4AP)+" "+String(iteration));
   //printDebug("CAGE " +String(cage));
   //printDebug("PROGRAM " +String(choices));
   //printDebug("MOUSE MOUSE_" +String(cage));
