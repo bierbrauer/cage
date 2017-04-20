@@ -122,7 +122,7 @@ int result = 0;
 int iteration = 0;
 
 // Timeout to reset arduino
-unsigned int ARDUINO_RESET_TIME = 86400000; // 24 hours in milliseconds
+unsigned long ARDUINO_RESET_TIME = 86400000; // 24 hours in milliseconds
 // Function to reset arduino
 void reset_arduino() {
   asm volatile("jmp 0");
@@ -368,7 +368,7 @@ readTouchInputs();
   }
   
   // Check for Arduino reset
-  if (millis() > ARDUINO_RESET_TIME) {
+  if (currMillis > ARDUINO_RESET_TIME) {
     Serial.println("RESET ARDUINO");
     delay(1000);
     reset_arduino();

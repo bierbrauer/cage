@@ -1,4 +1,4 @@
-#!/bin/bash/python
+#!/usr/bin/env python
 import serial.tools.list_ports
 import sys
 import atexit
