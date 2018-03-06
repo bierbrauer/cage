@@ -12,9 +12,8 @@ void printDebug(String message) {
 }
 
 const int cageID = 1;
-
+const int choices = 2;
 //**************************************pin numbers.*****************************************************
-  const int choices = 1;
   const int airpuffpin1 = 8;
   const int airpuffpin2 = 11;
   const int lightPinL = 9;
@@ -68,7 +67,7 @@ const int cageID = 1;
   unsigned long faildowntime = 0;
   unsigned long reactiontime = 0;
   unsigned long airpuffreleasetime = 0;
-  unsigned long shutdown = 0;
+  unsigned long do_shutdown = 0;
   unsigned long overretrialtime = 0;
   boolean touchStates[12];
   boolean airpuffstate = false;
@@ -109,7 +108,8 @@ const char MOUSE_2 = '2';
   
 //******************************************database******************************************************
 int cage = cageID;
-int program = choices;
+int options = choices;
+int program = 1;
 int mouse = 0;
 int trial = 0;
 unsigned long start = 0;
@@ -174,6 +174,25 @@ currMillis = millis();
 readTouchInputs();
   delay(1);
 
+
+/////////////look for mouse at RFID/////////
+  if(currMillis > resetRFID){
+    checkRFID();
+  }
+  if(IRon == false && IRVon == true){
+    digitalWrite(IRVpin, LOW);
+    IRVon = false;
+  }else if(IRon == true && IRVon == false){
+    digitalWrite(IRVpin, HIGH);
+    IRVon = true;
+    whensnext(SHUTDOWN_PROGRAM);
+  }
+
+  /////////////////////////////exit if nothing happens/////////////////
+  if(IRVon == true && mousethere == false && currMillis >= do_shutdown){
+    IRon = false;
+    Serial.println("shutdown");
+  }
 /////////////////////////////////////////////////////////check if mouse is at IR///////////////////////
   if(currMillis > IRcheck){
     IRstate = analogRead(IRpin);
@@ -269,7 +288,7 @@ if(permission == true && mousethere == true && inprocess == true && currMillis >
     whensnext(MAX_LICK_DURATION_FOR_REWARD);
     rewardgiven = true;
   }
-  if(permission == true && mousethere == true && inprocess == true && airpuffstate == true && lickedthistrial == randTrial && currMillis >= licktime && rewardgiven == false){
+  if(permission == true && mousethere == true && inprocess == true && airpuffstate == true && lickedthistrial == randTrial && currMillis > licktime && rewardgiven == false){
     whensnext(SUCCESS_TIMEOUT);
     retrial = true;
     permission = false;
@@ -283,7 +302,8 @@ if(permission == true && mousethere == true && inprocess == true && currMillis >
     whensnext(ERROR_TIMEOUT);
     permission = false;
   }*/
-  if(permission == true && mousethere == true && inprocess == true && airpuffstate == true && (lickedthistrial != randTrial) && lickedthistrial != 0 && currMillis >= licktime && rewardgiven == false){
+  //currMillis >= licktime
+  if(permission == true && mousethere == true && inprocess == true && airpuffstate == true && (lickedthistrial != randTrial) && lickedthistrial != 0 && rewardgiven == false){
     printDebug("TRIAL FAILED " + String(millis()) + " WRONG_SIDE_" + TrialSide[lickedthistrial - 1]);
     reason = lickedthistrial+4;
     closeTrial(reason);                                                                             //END 567 wrong side
@@ -291,7 +311,7 @@ if(permission == true && mousethere == true && inprocess == true && currMillis >
     permission = false;
   }
  
-  //////////end trial//////////////
+  //////////end successful trial//////////////
   if(currMillis >= rewardtime && inprocess == true & rewardgiven == true){
     inprocess = false;
     airpuffstate = false;
@@ -353,7 +373,7 @@ void check_distance(double distance){
       if(irONcounter >= IRiteration){
         irONcounter = IRiteration +1;
       }
-    } else if(distance >= IRmouseREC){
+    } else if(distance > IRmouseREC){
       irOFFcounter ++;
       if(mousethere == true && irOFFcounter >= IRiteration){
         IRon = false;
@@ -480,7 +500,7 @@ void closeTrial(int outcome){
 }
 void SendCollectedInformation(){
   //cage program mouse trial start finish duration result wait4AP time_waited iteration
-  Serial.println(String(cage)+" "+String(program)+" "+String(mouse)+" "+String(trial)+" "+String(duration)+" "+String(result)+" "+String(wait4AP)+" "+String(timewaited4AP)+" "+String(iteration));
+  Serial.println(String(cage)+" "+String(program)+" "+String(mouse)+" "+String(options)+" "+String(trial)+" "+String(duration)+" "+String(result)+" "+String(wait4AP)+" "+String(timewaited4AP)+" "+String(iteration));
   trial = 0;
   start = 0;
   finish = 0;
@@ -517,7 +537,7 @@ void whensnext(char reason){
     faildowntime = currMillis + failtimeout;
     break;
   case SHUTDOWN_PROGRAM:
-    shutdown = currMillis + 3000;
+    do_shutdown = currMillis + 3000;
     break;
   case DID_NOTHING_TIMEOUT:
     overretrialtime = currMillis + didnothing;
