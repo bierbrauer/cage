@@ -21,7 +21,7 @@ if (!$database) {
   die("ERROR selecting DB: " . mysql_error());
 }
 
-$query = mysql_query("SELECT * FROM arduino_events");
+$query = mysql_query("SELECT * FROM arduino_events ORDER BY timestamp DESC LIMIT 0,1");
 
 $arduino_events = [];
 

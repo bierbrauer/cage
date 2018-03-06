@@ -7,6 +7,7 @@ CREATE TABLE IF NOT EXISTS trial_data (
     cage INT(10),  
     program INT(10),
     mouse INT(10),
+    options INT(10),
     trial INT(10),
     trialStart BIGINT,
     trialEnd BIGINT,

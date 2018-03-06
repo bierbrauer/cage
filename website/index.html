@@ -2,20 +2,82 @@
 <html>
   <head>
     <title>CAGE</title>
+    <meta charset="utf-8"/>
     <link href="css/style.css" rel="stylesheet" type="text/css" />
+    <link href="css/bootstrap.css" rel="stylesheet" type="text/css" />
     <link href="css/libs/datatables.min.css" rel="stylesheet" type="text/css" />
-    <script src="js/libs/jquery.min.js" type="text/javascript"></script>
-    <script src="js/libs/datatables.min.js" type="text/javascript"></script>
-    <script src="js/index.js"type="text/javascript"></script>
+    <link href="css/libs/vis.min.css" rel="stylesheet" type="text/css" />
+    <link href="css/libs/vis-timeline-graph2d.min.css" rel="stylesheet" type="text/css" />
+    <link href="css/libs/select2.min.css" rel="stylesheet" type="text/css" />
   </head>
   <body>
-    <div>
-      <h1>Trial Data</h1>
-      <table id="trial_data"></table>
+  
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+        <div class="container">
+            <div class="navbar-header">
+                <a class="navbar-brand" href="#">Cage</a>
+            </div>
+            <div id="navbar" class="navbar-collapse collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li><a href="/">Dashboard</a></li>
+                </ul>
+                <form class="navbar-form navbar-right">
+                    <input type="text" class="form-control js--data-search" placeholder="Search...">
+                </form>
+            </div>
+        </div>
+    </nav>
+    
+    <div class="container">
+        <div class="row">
+            <div class="col-xs-6">
+                <img class="js--webcam img-responsive"/>
+                <nav class="navbar navbar-default navbar-static-top">
+                    <div class="container">
+                        <a href="#" class="btn navbar-btn btn-primary js--webcam-status"></a>
+                    </div>
+                </nav>
+            </div>
+            
+            <div class="col-xs-6">
+                <canvas class="js--graph"></canvas>
+                <nav class="navbar navbar-default navbar-static-top">
+                    <div class="container">
+                        <label for="graph-type">Graph:</label>
+                        <select class="js--select2 js--graph-type" id="graph-type">
+                            <option value="performance-day">Performance / Day</option>
+                            <option value="performance-trial">Performance / Trial</option>
+                        </select>
+                    </div>
+                </nav>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xs-12">
+                <h1>Trial Data</h1>
+                <table id="trial_data" class="table table-striped table-bordered table-condensed" cellspacing="0" width="100%"></table>
+            </div>
+            
+            <div class="row">
+                <div class="col-xs-12">
+                    <div class="alert alert-info js--arduino-alert" role="alert"></div>
+                </div>
+            </div>
+        </div>
     </div>
-    <div>
-      <h1>Arduino Events</h1>
-      <table id="arduino_events"></table>
-    </div>
+    
+    <script src="js/libs/jquery.min.js" type="text/javascript"></script>
+    <script src="js/libs/bootstrap.min.js" type="text/javascript"></script>
+    <script src="js/libs/datatables.min.js" type="text/javascript"></script>
+    <script src="js/libs/chart.bundle.min.js" type="text/javascript"></script>
+    <script src="js/libs/select2.full.min.js" type="text/javascript"></script>
+    <script src="js/libs/jquery.ba-throttle-debounce.min.js" type="text/javascript"></script>
+    <script src="js/polyfill.js"type="text/javascript"></script>
+    <script src="js/index.js"type="text/javascript"></script>
+    <script src="js/webcam.js"type="text/javascript"></script>
+    <script src="js/table-plugins.js"type="text/javascript"></script>
+    <script src="js/table.js"type="text/javascript"></script>
+    <script src="js/arduino.js"type="text/javascript"></script>
+    <script src="js/chart.js"type="text/javascript"></script>
   </body>
 </html>
