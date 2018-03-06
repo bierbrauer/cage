@@ -1,0 +1,6 @@
+AuthType Basic
+AuthUserFile /var/www/cage/.htpasswd
+AuthName "AG Larkum"
+order deny,allow
+allow from all
+require valid-user

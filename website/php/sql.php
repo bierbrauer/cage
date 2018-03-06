@@ -21,7 +21,7 @@ if (!$database) {
   die("ERROR selecting DB: " . mysql_error());
 }
 
-$query = mysql_query("SELECT * FROM trial_data");
+$query = mysql_query("SELECT * FROM trial_data ORDER BY trialEnd DESC");
 
 $trial_data = [];
 
@@ -29,6 +29,6 @@ while ($row = mysql_fetch_assoc($query)) {
     array_push($trial_data, $row);
 }
 
-die(json_encode($trial_data));
+die(json_encode(['data' => $trial_data]));
 
 ?>

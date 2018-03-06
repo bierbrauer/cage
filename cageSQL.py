@@ -19,14 +19,15 @@ connectedArduinos = {}
 CAGE = 0
 PROGRAM = 1
 MOUSE = 2
-TRIAL = 3
-DURATION = 4
-RESULT = 5
-WAIT_FOR_AP = 6
-WAITED = 7
+OPTIONS=3
+TRIAL = 4
+DURATION = 5
+RESULT = 6
+WAIT_FOR_AP = 7
+WAITED = 8
 ITERATION = 8
 
-DATA_LENGTH = 9
+DATA_LENGTH = 10
 
 def parseInput(data):
     parsedData = []
@@ -96,9 +97,9 @@ def saveToDatabase(data):
     try:
         cur.execute("""
             INSERT INTO trial_data
-            (`cage`, `program`, `mouse`, `trial`, `trialStart`, `trialEnd`, `duration`, `result`, `wait4AP`, `waited`, `iteration`)
-            VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)""", (
-            data[CAGE], data[PROGRAM], data[MOUSE], data[TRIAL], startTimestamp, endTimestamp,
+            (`cage`, `program`, `mouse`, `options`  `trial`, `trialStart`, `trialEnd`, `duration`, `result`, `wait4AP`, `waited`, `iteration`)
+            VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)""", (
+            data[CAGE], data[PROGRAM], data[MOUSE], data[OPTIONS] data[TRIAL], startTimestamp, endTimestamp,
             data[DURATION], data[RESULT], data[WAIT_FOR_AP], data[WAITED], data[ITERATION]
         ))
         db.commit()
