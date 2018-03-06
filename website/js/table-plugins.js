@@ -60,6 +60,10 @@ function renderColTimespan(ms, type){
     return ms + 'ms';
 }
 
+function renderColChoice(result, type){
+    return [null, 'Left', 'Right', 'Center'][result];
+}
+
 // select plugin
 $(document).on( 'init.dt', function(e, settings){
     var api = $.fn.DataTable.Api(settings);

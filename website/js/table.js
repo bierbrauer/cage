@@ -41,8 +41,8 @@ $(function(){
             },
             {
                 data: "trial",
-                title: "Choices",
-                render: $.fn.dataTable.render.text()
+                title: "Demanded",
+                render: renderColChoice
             },
             {
                 data: "trialStart",

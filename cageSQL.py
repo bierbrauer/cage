@@ -9,7 +9,7 @@ import MySQLdb
 # Arduino detection information
 ARUDINO_SERIAL_NUMBER_LENGTH = 20
 ARDUINO_SERIAL_NUMBER_IDENTIFIER = "SER="
-ARDUINO_UNO_PID = "VID:PID=2341:0043"
+ARDUINO_UNO_PID = "VID:PID=2A03:0043"
 SERIAL_PORT_PATH = "/dev"
 
 arduinoStatus = {}
@@ -25,7 +25,7 @@ DURATION = 5
 RESULT = 6
 WAIT_FOR_AP = 7
 WAITED = 8
-ITERATION = 8
+ITERATION = 9
 
 DATA_LENGTH = 10
 
@@ -97,9 +97,9 @@ def saveToDatabase(data):
     try:
         cur.execute("""
             INSERT INTO trial_data
-            (`cage`, `program`, `mouse`, `options`  `trial`, `trialStart`, `trialEnd`, `duration`, `result`, `wait4AP`, `waited`, `iteration`)
+            (`cage`, `program`, `mouse`, `options`, `trial`, `trialStart`, `trialEnd`, `duration`, `result`, `wait4AP`, `waited`, `iteration`)
             VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)""", (
-            data[CAGE], data[PROGRAM], data[MOUSE], data[OPTIONS] data[TRIAL], startTimestamp, endTimestamp,
+            data[CAGE], data[PROGRAM], data[MOUSE], data[OPTIONS], data[TRIAL], startTimestamp, endTimestamp,
             data[DURATION], data[RESULT], data[WAIT_FOR_AP], data[WAITED], data[ITERATION]
         ))
         db.commit()

@@ -14,11 +14,11 @@ void printDebug(String message) {
 const int cageID = 1;
 const int choices = 2;
 //**************************************pin numbers.*****************************************************
-  const int airpuffpin1 = 8;
+  const int airpuffpin1 = 5;//8
   const int airpuffpin2 = 11;
   const int lightPinL = 9;
   const int lightPinR = 10;
-  const int rewardpinL = 5;
+  const int rewardpinL = 8; //5
   const int rewardpinM = 6;
   const int rewardpinR = 7;
   const int IRpin = A0;
@@ -34,7 +34,7 @@ const int choices = 2;
   const int delayRW = 100;
   const int delayAP2lick = 5500;      //1500 4 AP
   const int delayRFIDreset = 150;
-  const double IRmouseREC = 8.5;
+  const double IRmouseREC = 9.5;
   const long lickduration = 2000;
   const long delayLICK = 1900;
   const long didnothing = 7000;
@@ -51,7 +51,7 @@ const int choices = 2;
   int previoustrial = 0;
   int irONcounter = 0;
   int irOFFcounter = 0;
-  int IRiteration = 3;
+  int IRiteration = 5;
 
   unsigned long timewaited4AP = 0;
   unsigned long startwaiting = 0;
@@ -148,7 +148,7 @@ void setup() {
 // start functions
   digitalWrite(irqpin, HIGH); //enable pullup resistor
   //digitalWrite(RFIDResetPin, HIGH); //activate RFID sensor
-  digitalWrite(IRVpin, HIGH);
+  digitalWrite(IRVpin, LOW);
   Serial.begin(9600);
   while (!Serial) { // needed to keep leonardo/micro from starting too fast!
     delay(50);
@@ -198,7 +198,7 @@ readTouchInputs();
     IRstate = analogRead(IRpin);
     uint16_t value = analogRead (IRpin);
     double distance = get_IR (value);                                       //Convert the analog voltage to the distance 
-    //Serial.print("Distance: "); Serial.println(distance);
+    Serial.print("Distance: "); Serial.println(distance);
     check_distance(distance);
     whensnext(INFRARED_TIMEOUT);
   }
@@ -363,7 +363,7 @@ void check_distance(double distance){
       if(mousethere == false && irONcounter >= IRiteration) {
         iteration = 0;
         sessiontrials = 0;
-        Serial.println("MOUSE ARRIVES");
+        Serial.println("IR: MOUSE ARRIVES");
       }
       if(irONcounter >= IRiteration){
         mousethere = true;
@@ -377,6 +377,7 @@ void check_distance(double distance){
       irOFFcounter ++;
       if(mousethere == true && irOFFcounter >= IRiteration){
         IRon = false;
+        Serial.println("IR: MOUSE LEFT");
       }
       if(irOFFcounter >= IRiteration){
         mousethere = false;
@@ -418,12 +419,12 @@ void checkTag(char tag[]){
   if(strlen(tag) == 0) return; //empty, no need to continue
 
   if(compareTag(tag, tag1)){ // if matched tag1, do this
-    Serial.println("MOUSE DETECTED " + String(MOUSE_1));
+    Serial.println("RFID: MOUSE DETECTED " + String(MOUSE_1));
     
     mouse = 1;
     IRon = true;
   }else if(compareTag(tag, tag2)){ //if matched tag2, do this
-    Serial.println("MOUSE DETECTED " + String(MOUSE_2));
+    Serial.println("RFID: MOUSE DETECTED " + String(MOUSE_2));
     mouse = 2;
     IRon = true; 
   }else{
