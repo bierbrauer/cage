@@ -61,6 +61,9 @@ function renderColTimespan(ms, type){
 }
 
 function renderColChoice(result, type){
+    if(type !== 'display'){
+        return result;
+    }
     return [null, 'Left', 'Right', 'Center'][result];
 }
 

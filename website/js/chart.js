@@ -26,21 +26,17 @@ function groupDataBy(data, getIdCb){
     return Object.values(dataByGroup);
 }
 
-function groupDataByMice(data){
+function groupDataByMiceAndProgram(data){
     return groupDataBy(data, function(entry){
-        return 'c:' + entry.cage + ';m:' + entry.mouse;
+        return 'c:' + entry.cage + ';m:' + entry.mouse + entry.program;
     });
 }
 
 function groupDataByDay(data){
-    return groupDataBy(data, function(entry){
+    return groupDataBy(data.sort(function(a, b){
+        return new Date(a.trialStart * 1) - new Date(b.trialStart * 1);
+    }), function(entry){
         return (new Date(entry.trialStart * 1)).toDateString();
-    });
-}
-
-function groupDataByTrial(data){
-    return groupDataBy(data, function(entry){
-        return 't:' + entry.trial;
     });
 }
 
@@ -51,7 +47,13 @@ function getDataByMiceByDay(data){
     });
 }
 
-function getDatasetByMiceByDay(data){
+function groupDataByMice(data){
+    return groupDataBy(data, function(entry){
+        return 'c:' + entry.cage + ';m:' + entry.mouse;
+    });
+}
+
+function getDatasetPerformanceByMiceByDay(data){
     var groupedData = getDataByMiceByDay(data);
     
     return groupedData.map(function(mouse, i){
@@ -78,20 +80,20 @@ function getDatasetByMiceByDay(data){
     });
 }
 
-function getDatasetByMiceByTrial(data){
-    var groupedData = groupDataByMice(data);
+function getDatasetPerformanceByMiceByTrial(data){
+    var groupedData = groupDataByMiceAndProgram(data);
     
     return groupedData.map(function(trials, i){
         var color = datasetColors[datasetColors.length % i];
         var dataset = {
-            label: 'Mouse ' + trials[0].mouse,
+            label: 'Mouse ' + trials[0].mouse + ' Program ' + trials[0].program,
             backgroundColor: Chart.helpers.color(color).alpha(0.5).rgbString(),
             borderColor: color,
             data: []
         };
         
         trials = trials.sort(function(a, b){
-            return a.id - b.id;
+            return a.trialStart - b.trialStart;
         });
         
         var previousTrials = [];
@@ -104,7 +106,7 @@ function getDatasetByMiceByTrial(data){
             previousTrials.push(trial);
             
             dataset.data.push({
-                x: i,
+                x: i + 1,
                 y: previousGoodTrials.length / previousTrials.length * 100
             });
         });
@@ -113,16 +115,84 @@ function getDatasetByMiceByTrial(data){
     });
 }
 
-function drawChart(opts){
-    var ctx = $('.js--graph').get(0).getContext('2d');
-    return new Chart(ctx, opts);
+function timeToDay(time){
+    return new Date(time.getFullYear(), time.getMonth(), time.getDate());
 }
 
+function getDatasetCountByMiceByDay(data){
+    var groupedData = getDataByMiceByDay(data);
+    
+    var DAYS_TO_BLOCK = 3;
+    
+    return groupedData.map(function(days, i){
+        var color = datasetColors[datasetColors.length % i];
+        var dataset = {
+            label: 'Mouse ' + days[0][0].mouse,
+            backgroundColor: Chart.helpers.color(color).alpha(0.5).rgbString(),
+            data: [],
+            pointBackgroundColor: [],
+        };
+        
+        var lowestTime = new Date(days[0][0].trialStart * 1);
+        var highestTime = new Date(days[days.length - 1][0].trialStart * 1);
+        var lowestDay = timeToDay(lowestTime);
+        var highestDay = timeToDay(highestTime);
+        var endDay = timeToDay(new Date(highestTime * 1 + DAYS_TO_BLOCK * 86400000));
+        var today = timeToDay(new Date());
+        
+        var currentDay = new Date(lowestDay);
+        var dayRange = [];
+        while(currentDay <= today){
+            dayRange.push(new Date(currentDay));
+            currentDay.setDate(currentDay.getDate() + 1);
+        }
+        
+        dayRange.forEach(function(day, i){
+            if(i >= DAYS_TO_BLOCK && day > endDay){
+                return;
+            }
+            
+            var trialsForDay = days.filter(function(dayData){
+                var trialDay = timeToDay(new Date(dayData[0].trialStart * 1));
+                return trialDay * 1 === day * 1;
+            })[0] || [];
+            
+            var ccolor = Chart.helpers.color(color).alpha(1).rgbString();
+            if(trialsForDay.length === 0){
+                ccolor = '#ff0000';
+            }
+            
+            dataset.data.push({
+                x: day,
+                y: trialsForDay.length,
+            });
+            
+            dataset.pointBackgroundColor.push(ccolor);
+        });
+        
+        return dataset;
+    });
+}
+
+var drawChart = (function(){
+    var lastChart = null;
+    
+    return function drawChart(opts){
+        if(lastChart){
+            lastChart.destroy();
+        }
+        
+        var ctx = $('.js--graph').get(0).getContext('2d');
+        lastChart = new Chart(ctx, opts);
+        return lastChart;
+    }
+})();
+
 function renderPerformanceDayChart(selectedData){
-     var datasets = getDatasetByMiceByDay(selectedData);
+     var datasets = getDatasetPerformanceByMiceByDay(selectedData);
      
      drawChart({
-        type: 'line',
+        type: 'bar',
         data: {
             datasets: datasets
         },
@@ -156,15 +226,28 @@ function renderPerformanceDayChart(selectedData){
                         callback: function(value){
                             return value + '%';
                         }
+                    },
+                    gridLines: {
+                        color: [null,null,null,null,null,'#000'],
+                        lineWidth: [1, 1, 1, 1, 1, 2]
+                    }
+                }, {
+                    position: 'right',
+                    ticks: {
+                        suggestedMin: 0,
+                        suggestedMax: 100,
+                        callback: function(value){
+                            return value + '%';
+                        }
                     }
                 }]
-            }
+            },
         }
     });
 }
 
 function renderPerformanceTrialChart(selectedData){
-     var datasets = getDatasetByMiceByTrial(selectedData);
+     var datasets = getDatasetPerformanceByMiceByTrial(selectedData);
      
      drawChart({
         type: 'line',
@@ -174,9 +257,13 @@ function renderPerformanceTrialChart(selectedData){
         options: {
             scales: {
                 xAxes: [{
+                    type: 'linear',
                     scaleLabel: {
                         display: true,
                         labelString: 'Trial'
+                    },
+                    ticks: {
+                        source: 'data'
                     }
                 }],
                 yAxes: [{
@@ -190,6 +277,57 @@ function renderPerformanceTrialChart(selectedData){
                         callback: function(value){
                             return value + '%';
                         }
+                    },
+                    gridLines: {
+                        color: [null,null,null,null,null,'#000'],
+                        lineWidth: [1, 1, 1, 1, 1, 2]
+                    }
+                }, {
+                    position: 'right',
+                    ticks: {
+                        suggestedMin: 0,
+                        suggestedMax: 100,
+                        callback: function(value){
+                            return value + '%';
+                        }
+                    }
+                }]
+            }
+        }
+    });
+}
+
+function renderCountDayChart(selectedData){
+     var datasets = getDatasetCountByMiceByDay(selectedData);
+     
+     drawChart({
+        type: 'line',
+        data: {
+            datasets: datasets
+        },
+        options: {
+            scales: {
+                xAxes: [{
+                    type: "time",
+                    time: {
+                        tooltipFormat: 'll',
+                        unit: 'day',
+                        displayFormats: {
+                            day: 'll'
+                        }
+                    },
+                    scaleLabel: {
+                        display: true,
+                        labelString: 'Day'
+                    },
+                    ticks: {
+                        source: 'data'
+                    }
+                }],
+                yAxes: [{
+                    scaleLabel: {
+                        display: true,
+                        labelString: 'Trials'
                     }
                 }]
             }
@@ -201,7 +339,8 @@ function renderSelectedChart(selectedData){
     var $select = $('.js--graph-type');
     var charts = {
         'performance-day': renderPerformanceDayChart,
-        'performance-trial': renderPerformanceTrialChart
+        'performance-trial': renderPerformanceTrialChart,
+        'count-day': renderCountDayChart
     };
     charts[$select.val()](selectedData);
 }

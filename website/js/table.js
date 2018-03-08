@@ -15,14 +15,14 @@ $(function(){
             {
                 data: "cage",
                 title: "Cage",
-                s2filter: {
-                    prefix: 'Cage '
-                },
                 render: $.fn.dataTable.render.text()
             },
             {
                 data: "program",
                 title: "Program",
+                s2filter: {
+                    prefix: 'Program  '
+                },
                 render: $.fn.dataTable.render.text()
             },
             {
@@ -42,6 +42,9 @@ $(function(){
             {
                 data: "trial",
                 title: "Demanded",
+                s2filter: {
+                    prefix: 'Demanded '
+                },
                 render: renderColChoice
             },
             {
