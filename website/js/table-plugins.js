@@ -72,6 +72,7 @@ $(document).on( 'init.dt', function(e, settings){
     var api = $.fn.DataTable.Api(settings);
     var opts = api.init();
     var $wrapper = $(settings.nTableWrapper);
+    $wrapper = $('<div>', { 'class': 'table-filters' }).prependTo($wrapper);
     var defaults = {
         prefix: '',
         postfix: '',
@@ -102,7 +103,7 @@ $(document).on( 'init.dt', function(e, settings){
         });
         
         var $select = $('<select>');
-        $wrapper.prepend($select);
+        $wrapper.append($select);
         
         $select.on('change', function(){
             var val = $select.val();
@@ -125,7 +126,7 @@ $(document).on( 'init.dt', function(e, settings){
             placeholder: col.title,
             data: data,
             multiple: s2opts.multiple,
-            width: '300px',
+            width: '230px',
             allowClear: true
         });
     });

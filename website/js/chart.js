@@ -1,14 +1,18 @@
 var datasetColors = [
-	'#f67019',
-	'#f53794',
 	'#537bc4',
+	'#f67019',
 	'#acc236',
 	'#166a8f',
 	'#00a950',
 	'#58595b',
     '#4dc9f6',
-	'#8549ba'
+	'#8549ba',
+	'#f53794',
 ];
+
+function getColorByIndex(i){
+    return datasetColors[i % datasetColors.length];
+}
 
 function groupDataBy(data, getIdCb){
     var dataByGroup = {};
@@ -57,7 +61,7 @@ function getDatasetPerformanceByMiceByDay(data){
     var groupedData = getDataByMiceByDay(data);
     
     return groupedData.map(function(mouse, i){
-        var color = datasetColors[datasetColors.length % i];
+        var color = getColorByIndex(i);
         var dataset = {
             label: 'Mouse ' + mouse[0][0].mouse,
             backgroundColor: Chart.helpers.color(color).alpha(0.5).rgbString(),
@@ -72,7 +76,8 @@ function getDatasetPerformanceByMiceByDay(data){
             var dayDate = new Date((new Date(trials[0].trialStart * 1)).toDateString())
             dataset.data.push({
                 x: dayDate,
-                y: Math.round(goodTrials.length / trials.length * 10000) / 100
+                y: Math.round(goodTrials.length / trials.length * 10000) / 100,
+                count: trials.length
             });
         });
         
@@ -84,7 +89,7 @@ function getDatasetPerformanceByMiceByTrial(data){
     var groupedData = groupDataByMiceAndProgram(data);
     
     return groupedData.map(function(trials, i){
-        var color = datasetColors[datasetColors.length % i];
+        var color = getColorByIndex(i);
         var dataset = {
             label: 'Mouse ' + trials[0].mouse + ' Program ' + trials[0].program,
             backgroundColor: Chart.helpers.color(color).alpha(0.5).rgbString(),
@@ -125,7 +130,7 @@ function getDatasetCountByMiceByDay(data){
     var DAYS_TO_BLOCK = 3;
     
     return groupedData.map(function(days, i){
-        var color = datasetColors[datasetColors.length % i];
+        var color = getColorByIndex(i);
         var dataset = {
             label: 'Mouse ' + days[0][0].mouse,
             backgroundColor: Chart.helpers.color(color).alpha(0.5).rgbString(),
@@ -140,9 +145,12 @@ function getDatasetCountByMiceByDay(data){
         var endDay = timeToDay(new Date(highestTime * 1 + DAYS_TO_BLOCK * 86400000));
         var today = timeToDay(new Date());
         
+        // in case of manipulated data
+        var lastDate = today > highestDay ? today : highestDay;
+        
         var currentDay = new Date(lowestDay);
         var dayRange = [];
-        while(currentDay <= today){
+        while(currentDay <= lastDate){
             dayRange.push(new Date(currentDay));
             currentDay.setDate(currentDay.getDate() + 1);
         }
@@ -182,6 +190,8 @@ var drawChart = (function(){
             lastChart.destroy();
         }
         
+        opts.options.maintainAspectRatio = false;
+        
         var ctx = $('.js--graph').get(0).getContext('2d');
         lastChart = new Chart(ctx, opts);
         return lastChart;
@@ -213,7 +223,10 @@ function renderPerformanceDayChart(selectedData){
                     },
                     ticks: {
                         source: 'data'
-                    }
+                    },
+                    barPercentage: 1,
+                    categoryPercentage: 0.9,
+                    distribution: 'series'
                 }],
                 yAxes: [{
                     scaleLabel: {
@@ -242,6 +255,14 @@ function renderPerformanceDayChart(selectedData){
                     }
                 }]
             },
+            tooltips: {
+                callbacks: {
+                    afterLabel: function(item, data){
+                        var count = data.datasets[item.datasetIndex].data[item.index].count;
+                        return 'Trials: ' + count;
+                    }
+                }
+            }
         }
     });
 }
@@ -359,6 +380,13 @@ function listenOnSearchChangeGraphSelect(cb){
         if(searchId === lastSearchId){
             return;
         }
+        cb(dts);
+        lastSearchId = searchId;
+    }));
+    
+    $('#trial_data').on('xhr.dt', $.debounce(250, function(e, dataTableSettings){
+        dts = dataTableSettings;
+        var searchId = getSearchId();
         cb(dts);
         lastSearchId = searchId;
     }));

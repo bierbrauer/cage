@@ -6,10 +6,18 @@ function toggleLiveStream(showStream){
     $webcam.toggle(showStream);
     
     if(showStream){
-        $webcam.attr('src',  (window.location.protocol + '//' + window.location.host + ':8080/?action=stream&random=' + Math.random()));
+        $webcam.attr('src',  getLivestreamUrl());
     } else {
         $webcam.removeAttr('src');
     }
+}
+
+function getLivestreamUrl(){
+    var origin = window.location.protocol + '//' + window.location.host + ':8080';
+    if(window.location.host.indexOf('localtunnel.me') !== -1){
+        origin = 'https://camaglarkum.localtunnel.me';
+    }
+    return (origin + '/?action=stream&random=' + Math.random());
 }
 
 function webCamAction(action, cb, timeout){

@@ -1,1 +1,18 @@
 body { padding-top: 70px; }
+
+.table-filters {
+    float: left;
+}
+
+.table-filters .select2-container {
+    margin-right: 10px;
+    margin-bottom: 10px;
+}
+
+.dt-buttons {
+    margin-bottom: 10px;
+}
+
+.chartjs-render-monitor {
+    max-height: 417px;
+}
