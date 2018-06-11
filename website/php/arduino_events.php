@@ -15,9 +15,9 @@ if (!$connection) {
   die("ERROR connecting to DB: " . mysql_error());
 }
 
-$database = mysql_select_db($database);
+$hasDatabase = mysql_select_db($database);
 
-if (!$database) {
+if (!$hasDatabase) {
   die("ERROR selecting DB: " . mysql_error());
 }
 

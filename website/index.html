@@ -6,8 +6,6 @@
     <link href="css/style.css" rel="stylesheet" type="text/css" />
     <link href="css/bootstrap.css" rel="stylesheet" type="text/css" />
     <link href="css/libs/datatables.min.css" rel="stylesheet" type="text/css" />
-    <link href="css/libs/vis.min.css" rel="stylesheet" type="text/css" />
-    <link href="css/libs/vis-timeline-graph2d.min.css" rel="stylesheet" type="text/css" />
     <link href="css/libs/select2.min.css" rel="stylesheet" type="text/css" />
   </head>
   <body>
@@ -15,7 +13,7 @@
     <nav class="navbar navbar-inverse navbar-fixed-top">
         <div class="container">
             <div class="navbar-header">
-                <a class="navbar-brand" href="#">Cage</a>
+                <a class="navbar-brand" href="/cage/">Cage</a>
             </div>
             <div id="navbar" class="navbar-collapse collapse">
                 <ul class="nav navbar-nav navbar-right">
@@ -42,9 +40,9 @@
             <div class="col-xs-6">
                 <canvas class="js--graph"></canvas>
                 <nav class="navbar navbar-default navbar-static-top">
-                    <div class="container" style="padding:10px">
+                    <div style="padding:10px">
                         <label for="graph-type">Graph:</label>
-                        <select class="js--select2 js--graph-type" id="graph-type" style="width:400px;">
+                        <select class="js--select2 js--graph-type" id="graph-type" style="width:70%;">
                             <option value="performance-day">Performance / Day</option>
                             <option value="performance-trial">Performance / Trial</option>
                             <option value="count-day">Trials / Day</option>
@@ -53,16 +51,17 @@
                 </nav>
             </div>
         </div>
+        
         <div class="row">
             <div class="col-xs-12">
                 <h1>Trial Data</h1>
                 <table id="trial_data" class="table table-striped table-bordered table-condensed" cellspacing="0" width="100%"></table>
             </div>
+        </div>
             
-            <div class="row">
-                <div class="col-xs-12">
-                    <div class="alert alert-info js--arduino-alert" role="alert"></div>
-                </div>
+        <div class="row">
+            <div class="col-xs-12">
+                <div class="alert alert-info js--arduino-alert"></div>
             </div>
         </div>
     </div>

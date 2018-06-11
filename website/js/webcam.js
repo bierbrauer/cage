@@ -1,4 +1,32 @@
 var webcamIsRunning;
+var webcamTimeoutId;
+
+function imageLoop(){
+    var $webcam = $('.js--webcam');
+    var loadStart;
+    var tick = function(){
+        loadStart = Date.now();
+        $webcam.attr('src',  getLivestreamUrl());
+        scheduleTick();
+    };
+    
+    var scheduleTick = function(){
+        if(!webcamIsRunning){
+            return;
+        }
+        $webcam.on('load', function(){
+            var loadTime = Date.now() - loadStart;
+            clearTimeout(webcamTimeoutId);
+            if(loadTime < 1000 / 16){
+                webcamTimeoutId = setTimeout(tick, 1000 / 16);
+            } else {
+                webcamTimeoutId = setTimeout(tick, 1);
+            }
+        });
+    }
+    
+    tick();
+}
 
 function toggleLiveStream(showStream){
     var $webcam = $('.js--webcam');
@@ -6,8 +34,11 @@ function toggleLiveStream(showStream){
     $webcam.toggle(showStream);
     
     if(showStream){
-        $webcam.attr('src',  getLivestreamUrl());
+       imageLoop()
     } else {
+        if(webcamTimeoutId){
+            clearTimeout(webcamTimeoutId);
+        }
         $webcam.removeAttr('src');
     }
 }
@@ -15,9 +46,12 @@ function toggleLiveStream(showStream){
 function getLivestreamUrl(){
     var origin = window.location.protocol + '//' + window.location.host + ':8080';
     if(window.location.host.indexOf('localtunnel.me') !== -1){
-        origin = 'https://camaglarkum.localtunnel.me';
+        origin = '//camaglarkum.localtunnel.me';
     }
-    return (origin + '/?action=stream&random=' + Math.random());
+    if(window.location.host.indexOf('scn.cx') !== -1){
+        origin = '//aglarkum-cam.scn.cx';
+    }
+    return (origin + '/?action=snapshot&random=' + Math.random());
 }
 
 function webCamAction(action, cb, timeout){

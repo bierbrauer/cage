@@ -1,4 +1,4 @@
-function onArduinoEventsLoaded(response, status) {
+function onArduinoEventsLoaded(response) {
     var parsedData = JSON.parse(response);
     var lastEvent = parsedData[0];
     var $alert = $('.js--arduino-alert');
@@ -17,6 +17,8 @@ function onArduinoEventsLoaded(response, status) {
 $(function(){
     $.ajax('/cage/php/arduino_events.php', {
         success: onArduinoEventsLoaded,
-        error: console.error.bind(console)
+        error: function(error){ 
+           console.warn(error); 
+        }
     });
 });
