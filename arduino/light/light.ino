@@ -24,7 +24,7 @@ const int choices = 2;
   const int IRpin = A0;
   const int IRVpin = 12;
   const int irqpin = 2;
-  const int RFIDResetPin = 13;
+  const int RFIDResetPin = 3;
 // *****************************************delay times*****************************************************************
   const int delayIR2AP = 50;   //1000 4 AP
   const int randomIR2AP = 10;      //1500 4 AP
